@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wahat Al Baraka — Light Pro V3 (All-in-One)</title>
+<style>
+:root{
+  --bg:#ffffff; --surface:#ffffff; --muted:#6b7280; --text:#0f172a;
+  --border:#e5e7eb; --brand:#22c55e; --brandSoft:#dcfce7; --brandDark:#16a34a; --indigo:#4338ca;
+}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--text);background:var(--bg)}
+a{color:var(--indigo);text-decoration:none}
+/* Layout */
+.app{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+.aside{background:#f9fafb;border-right:1px solid var(--border);padding:18px;display:flex;flex-direction:column;gap:12px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--brand),#34d399);display:flex;align-items:center;justify-content:center;color:#064e3b;font-weight:900}
+.brand h1{font-size:18px;margin:0}
+.nav a{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;color:#111827}
+.nav a.active,.nav a:hover{background:var(--brandSoft)}
+.main{display:grid;grid-template-rows:64px 1fr}
+.topbar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:0 18px;background:#fff;position:sticky;top:0;z-index:10}
+.search{width:320px;max-width:50vw;padding:10px;border:1px solid var(--border);border-radius:10px;background:#f3f4f6}
+.content{padding:18px}
+/* Cards & UI */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.kpi{padding:12px;border-left:4px solid var(--brand);background:#f8fafc}
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;background:var(--brand);color:#fff;font-size:12px}
+.small{color:var(--muted);font-size:12px}
+.input,select{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:#f9fafb}
+.btn{padding:10px 14px;border:0;border-radius:10px;background:var(--brand);color:#fff;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:#111827}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{padding:10px;border-bottom:1px solid var(--border);text-align:left}
+.table thead th{position:sticky;top:0;background:#fff;z-index:1}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.input.sm{padding:8px;font-size:14px}
+/* Collapsible & carets */
+.collapsible{border:1px dashed var(--border);border-radius:10px;padding:10px;background:#fff;display:none;margin-top:10px}
+.caret{display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:#111827}
+.caret svg{transition:transform .2s}
+.caret[aria-expanded="true"] svg{transform:rotate(90deg)}
+/* Toasts */
+.toast{position:fixed;right:16px;bottom:16px;background:#111827;color:#fff;padding:10px 14px;border-radius:10px;opacity:0;transform:translateY(10px);transition:.25s}
+.toast.show{opacity:1;transform:none}
+/* Auth hero */
+.auth{min-height:100vh;display:grid;place-items:center;background:
+  radial-gradient(600px 400px at 10% 10%, #dcfce7 0%, transparent 60%),
+  radial-gradient(600px 400px at 90% 20%, #e0e7ff 0%, transparent 60%),
+  linear-gradient(180deg,#ffffff 0%, #f6f9ff 100%);
+}
+.auth .panel{max-width:460px;width:100%}
+.heroCard{position:relative;overflow:hidden}
+.heroCard::before{content:"";position:absolute;inset:-30% -20% auto auto;width:420px;height:420px;background:radial-gradient(circle at 30% 30%,rgba(34,197,94,.25),transparent 60%);filter:blur(20px)}
+.heroCard::after{content:"";position:absolute;inset:auto -20% -30% auto;width:420px;height:420px;background:radial-gradient(circle at 70% 70%,rgba(67,56,202,.25),transparent 60%);filter:blur(20px)}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth" class="auth">
+  <div class="card panel heroCard">
+    <div class="brand" style="justify-content:center"><div class="logo">WB</div><h1>Wahat Al Baraka</h1></div>
+    <p class="small" style="text-align:center">Light Pro V3 — local-only demo</p>
+    <div id="login">
+      <input id="login_email" class="input" placeholder="Email">
+      <input id="login_pass" class="input" type="password" placeholder="Password" style="margin-top:8px">
+      <div class="tools" style="margin-top:8px">
+        <button class="btn" onclick="login()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M10 17l5-5-5-5v10z"/><path d="M4 4h7v2H6v12h5v2H4z"/></svg>
+          Sign in
+        </button>
+        <button class="btn ghost" onclick="showSignup()">Sign up</button>
+      </div>
+      <div id="login_err" class="small" style="color:#b91c1c;margin-top:6px;display:none"></div>
+    </div>
+    <div id="signup" style="display:none">
+      <div class="grid">
+        <input id="su_email" class="input" placeholder="Email">
+        <input id="su_pass" class="input" type="password" placeholder="Password">
+        <input id="su_pass2" class="input" type="password" placeholder="Confirm password">
+      </div>
+      <div class="grid" style="margin-top:6px">
+        <select id="su_role" class="input">
+          <option value="Viewer">Viewer</option>
+          <option value="Admin">Admin</option>
+          <option value="Super Admin">Super Admin</option>
+        </select>
+      </div>
+      <div class="tools" style="margin-top:8px">
+        <button class="btn" onclick="signup()">Create account</button>
+        <button class="btn ghost" onclick="showLogin()">Back</button>
+      </div>
+      <div id="su_err" class="small" style="color:#b91c1c;margin-top:6px;display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="app" style="display:none">
+  <aside class="aside">
+    <div class="brand"><div class="logo">WB</div><h1>Wahat Al Baraka</h1></div>
+    <nav class="nav">
+      <a href="#" class="active">Dashboard</a>
+      <a href="#items">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 7h18v2H3zM3 11h18v2H3zM3 15h12v2H3z"/></svg>
+        Items
+      </a>
+      <a href="#suppliers" id="suppliers_link" class="caret" aria-expanded="false" onclick="toggleQuickItem(event)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 9l4 4 4-4"/></svg>
+        Suppliers
+      </a>
+      <div id="quick_item_box" class="collapsible">
+        <div class="small" style="margin-bottom:6px">Quick Add Item</div>
+        <div class="grid">
+          <input id="qi_name" class="input" placeholder="Item Name">
+          <input id="qi_unit" class="input" placeholder="Unit">
+          <input id="qi_sale" class="input" type="number" step="0.01" placeholder="Sale">
+          <input id="qi_cost" class="input" type="number" step="0.01" placeholder="Cost">
+          <select id="qi_supplier" class="input"></select>
+          <select id="qi_employee" class="input"></select>
+        </div>
+        <div class="tools" style="margin-top:8px">
+          <button class="btn" onclick="quickAddItem()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
+            Add Item
+          </button>
+        </div>
+      </div>
+      <a href="#employees" id="emp_link" class="caret" aria-expanded="false" onclick="openModule(event,'employees')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 9l4 4 4-4"/></svg>
+        Employees
+      </a>
+      <a href="#sales" id="sales_link" class="caret" aria-expanded="false" onclick="openModule(event,'sales')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 9l4 4 4-4"/></svg>
+        Sales
+      </a>
+      <a href="#purchases" id="purch_link" class="caret" aria-expanded="false" onclick="openModule(event,'purchases')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 9l4 4 4-4"/></svg>
+        Purchases
+      </a>
+      <a href="#inventory" id="inv_link" class="caret" aria-expanded="false" onclick="openModule(event,'inventory')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 9l4 4 4-4"/></svg>
+        Inventory
+      </a>
+      <a href="#accounting" id="acct_link" class="caret" aria-expanded="false" onclick="toggleQuickAccounts(event)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 9l4 4 4-4"/></svg>
+        Accounting
+      </a>
+      <div id="quick_acct_box" class="collapsible">
+        <div class="small" style="margin-bottom:6px">Quick Add Account</div>
+        <div class="grid">
+          <input id="qa_name" class="input" placeholder="Account Name">
+          <input id="qa_type" class="input" placeholder="Type (e.g., Asset, Liability, Revenue)">
+        </div>
+        <div class="tools" style="margin-top:8px">
+          <button class="btn" onclick="quickAddAccount()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
+            Add Account
+          </button>
+        </div>
+      </div>
+    </nav>
+    <div class="small">Logged in as: <span id="whoami">—</span> • Role: <span id="whorole">—</span></div>
+    <button class="btn ghost" onclick="logout()">Log out</button>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="tools">
+        <span class="badge">Demo</span>
+        <span class="small">Executive view</span>
+      </div>
+      <input id="global_search" class="search" placeholder="Search everything…" oninput="globalSearch()">
+    </div>
+
+    <div id="module_panel" class="content" style="display:none">
+      <div class="card" id="module_inner"></div>
+    </div>
+
+    <div class="content">
+      <div class="kpis">
+        <div class="card kpi"><div class="small">Total Sales (M)</div><div style="font-size:22px;font-weight:800">$82,500</div></div>
+        <div class="card kpi"><div class="small">Open POs</div><div style="font-size:22px;font-weight:800">12</div></div>
+        <div class="card kpi"><div class="small">AR (Customers)</div><div style="font-size:22px;font-weight:800">$25,300</div></div>
+        <div class="card kpi"><div class="small">Low Stock</div><div style="font-size:22px;font-weight:800">4</div></div>
+      </div>
+
+      <!-- Suppliers -->
+      <div class="card" style="margin-top:14px">
+        <div class="tools" style="justify-content:space-between">
+          <h3 style="margin:0">Suppliers</h3>
+          <div class="tools">
+            <input id="sup_filter" class="input sm" placeholder="Filter…" oninput="renderSuppliers()">
+            <button class="btn" onclick="addSupplier()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
+              Add supplier
+            </button>
+          </div>
+        </div>
+        <div class="grid" style="margin-top:10px">
+          <input class="input" id="sup_name" placeholder="Supplier Name">
+          <input class="input" id="sup_email" placeholder="Email">
+          <input class="input" id="sup_phone" placeholder="Phone">
+          <select id="sup_employee" class="input"></select>
+        </div>
+        <div style="overflow:auto;margin-top:10px;max-height:300px">
+          <table class="table" id="sup_table">
+            <thead><tr>
+              <th>Name</th><th>Email</th><th>Phone</th><th>Created By (Employee)</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="sup_tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="card" style="margin-top:14px">
+        <div class="tools" style="justify-content:space-between">
+          <h3 style="margin:0">Items</h3>
+          <div class="tools">
+            <input id="items_filter" class="input sm" placeholder="Filter…" oninput="renderItems()">
+            <button class="btn" onclick="addItem()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
+              Add item
+            </button>
+          </div>
+        </div>
+        <div class="grid" style="margin-top:10px">
+          <input class="input" id="item_name" placeholder="Item Name">
+          <input class="input" id="item_unit" placeholder="Unit">
+          <input class="input" id="item_sale" type="number" step="0.01" placeholder="Sale Price (USD)">
+          <input class="input" id="item_cost" type="number" step="0.01" placeholder="Cost (USD)">
+          <select id="item_supplier" class="input"></select>
+          <select id="item_employee" class="input"></select>
+        </div>
+        <div style="overflow:auto;margin-top:10px;max-height:300px">
+          <table class="table" id="items_table">
+            <thead><tr>
+              <th>Name</th><th>Unit</th><th>Sale</th><th>Cost</th><th>Supplier</th><th>Created By (Employee)</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="items_tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Accounts -->
+      <div class="card" style="margin-top:14px">
+        <div class="tools" style="justify-content:space-between">
+          <h3 style="margin:0">Accounts</h3>
+          <div class="tools">
+            <input id="acct_filter" class="input sm" placeholder="Filter…" oninput="renderAccounts()">
+            <button class="btn" onclick="addAccount()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
+              Add account
+            </button>
+          </div>
+        </div>
+        <div class="grid" style="margin-top:10px">
+          <input class="input" id="acct_name" placeholder="Account Name">
+          <input class="input" id="acct_type" placeholder="Type (Asset / Liability / Revenue / Expense)">
+        </div>
+        <div class="small" style="margin-top:6px">Super Admin sees all accounts. Others see only their own.</div>
+        <div style="overflow:auto;margin-top:10px;max-height:300px">
+          <table class="table" id="acct_table">
+            <thead><tr>
+              <th>Name</th><th>Type</th><th>Owner</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="acct_tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Employees -->
+      <div class="card" style="margin-top:14px">
+        <div class="tools" style="justify-content:space-between">
+          <h3 style="margin:0">Employees</h3>
+          <div class="tools">
+            <input id="emp_filter" class="input sm" placeholder="Filter…" oninput="renderEmployees()">
+            <button class="btn" onclick="addEmployee()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
+              Add employee
+            </button>
+          </div>
+        </div>
+        <div class="grid" style="margin-top:10px">
+          <input class="input" id="emp_name" placeholder="Employee Name">
+          <input class="input" id="emp_email" placeholder="Email">
+          <select id="emp_role" class="input">
+            <option value="Viewer">Viewer</option>
+            <option value="Admin">Admin</option>
+            <option value="Super Admin">Super Admin</option>
+          </select>
+        </div>
+        <div style="overflow:auto;margin-top:10px;max-height:300px">
+          <table class="table" id="emp_table">
+            <thead><tr>
+              <th>Name</th><th>Email</th><th>Role</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="emp_tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast">Saved</div>
+
+<script>
+/* Utils */
+function usd(v){return '$' + (parseFloat(v||0).toFixed(2));}
+function id(){return Math.random().toString(36).slice(2,9)}
+function val(id){return (document.getElementById(id)?.value||'').trim()}
+function clear(ids){ids.forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400);}
+
+/* Auth with role */
+const KEY_USERS='wab_v3_users', KEY_SESSION='wab_v3_session';
+const getU=()=>JSON.parse(localStorage.getItem(KEY_USERS)||'[]');
+const setU=u=>localStorage.setItem(KEY_USERS,JSON.stringify(u));
+const setS=(email,role)=>localStorage.setItem(KEY_SESSION,JSON.stringify({email,role}));
+const getS=()=>{try{return JSON.parse(localStorage.getItem(KEY_SESSION))}catch(e){return null}};
+function showSignup(){document.getElementById('signup').style.display='block';document.getElementById('login').style.display='none';}
+function showLogin(){document.getElementById('signup').style.display='none';document.getElementById('login').style.display='block';}
+function signup(){const e=val('su_email'),p=val('su_pass'),p2=val('su_pass2'),r=val('su_role');const er=document.getElementById('su_err');er.style.display='none';er.textContent='';if(!e||!p){er.textContent='Email & password required';er.style.display='block';return;}if(p!==p2){er.textContent='Passwords do not match';er.style.display='block';return;}const u=getU();if(u.find(x=>x.email===e)){er.textContent='Account exists';er.style.display='block';return;}u.push({email:e,pass:p,role:r});setU(u);showLogin();toast('Account created. Sign in.');}
+function login(){const e=val('login_email'),p=val('login_pass');const er=document.getElementById('login_err');er.style.display='none';er.textContent='';const ok=getU().find(x=>x.email===e&&x.pass===p);if(!ok){er.textContent='Invalid email or password.';er.style.display='block';return;}setS(ok.email,ok.role||'Viewer');boot();}
+function logout(){localStorage.removeItem(KEY_SESSION);location.reload();}
+(function seed(){if(getU().length===0){setU([{email:'admin@wahat-al-baraka.demo',pass:'admin123',role:'Super Admin'}]);}})();
+
+/* Local store */
+const store={get:k=>JSON.parse(localStorage.getItem(k)||'[]'),set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+const EMP_KEY='employees', SUP_KEY='suppliers', ITEM_KEY='items', ACCT_KEY='accounts', SALES_KEY='sales', PO_KEY='purchase_orders', INV_KEY='inventory';
+
+/* Dropdown helpers */
+function fillEmployees(){
+  if(store.get(EMP_KEY).length===0){
+    store.set(EMP_KEY,[
+      {id:id(),name:'Ali Kareem',email:'ali@wab.demo',role:'Admin'},
+      {id:id(),name:'Hussein Saad',email:'hussein@wab.demo',role:'Viewer'},
+      {id:id(),name:'Zainab Jawad',email:'zainab@wab.demo',role:'Super Admin'}
+    ]);
+  }
+  const list=store.get(EMP_KEY);
+  const opts = ['<option value=\"\">— Employee —</option>'].concat(list.map(e=>`<option value=\"${e.name}\">${e.name} (${e.role||'Viewer'})</option>`)).join('');
+  ['sup_employee','item_employee','qi_employee'].forEach(id=>{const el=document.getElementById(id); if(el) el.innerHTML=opts;});
+}
+function populateSupplierOptions(){
+  const list=store.get(SUP_KEY);
+  const opts = ['<option value=\"\">— Supplier —</option>'].concat(list.map(s=>`<option value=\"${s.name}\">${s.name}</option>`)).join('');
+  ['item_supplier','qi_supplier'].forEach(id=>{const el=document.getElementById(id); if(el) el.innerHTML=opts;});
+}
+
+/* Suppliers */
+function addSupplier(){const a=store.get(SUP_KEY);const name=val('sup_name');if(!name)return alert('Supplier name required');a.push({id:id(),name,email:val('sup_email'),phone:val('sup_phone'),createdBy:getSelected('sup_employee')});store.set(SUP_KEY,a);renderSuppliers();populateSupplierOptions();toast('Supplier added');clear(['sup_name','sup_email','sup_phone']);}
+function editSupplier(idv){const a=store.get(SUP_KEY);const s=a.find(x=>x.id===idv);if(!s) return; const name=prompt('Supplier name',s.name); if(name===null)return; const email=prompt('Email',s.email||''); if(email===null)return; const phone=prompt('Phone',s.phone||''); if(phone===null)return; const createdBy=prompt('Created By (Employee)',s.createdBy||''); if(createdBy===null)return; Object.assign(s,{name,email,phone,createdBy}); store.set(SUP_KEY,a); renderSuppliers(); populateSupplierOptions(); toast('Supplier updated');}
+function delSupplier(idv){let a=store.get(SUP_KEY).filter(x=>x.id!==idv);store.set(SUP_KEY,a);renderSuppliers();populateSupplierOptions();toast('Supplier deleted');}
+function renderSuppliers(){const q=(val('sup_filter')||'').toLowerCase();const rows=store.get(SUP_KEY).filter(s=>!q||JSON.stringify(s).toLowerCase().includes(q)).map(s=>`<tr><td>${s.name||''}</td><td>${s.email||''}</td><td>${s.phone||''}</td><td>${s.createdBy||''}</td><td><button class='btn ghost' onclick="editSupplier('${s.id}')">Edit</button> <button class='btn ghost' onclick="delSupplier('${s.id}')">Delete</button></td></tr>`).join('');document.getElementById('sup_tbody').innerHTML=rows||'<tr><td colspan="5" class="small">No suppliers yet.</td></tr>';}
+
+/* Items */
+function addItem(){const a=store.get(ITEM_KEY);const name=val('item_name');if(!name)return alert('Item name required');a.push({id:id(),name,unit:val('item_unit'),sale:+val('item_sale')||0,cost:+val('item_cost')||0,supplier:getSelected('item_supplier'),createdBy:getSelected('item_employee')});store.set(ITEM_KEY,a);renderItems();toast('Item added');clear(['item_name','item_unit','item_sale','item_cost']);}
+function quickAddItem(){const a=store.get(ITEM_KEY);const name=val('qi_name');if(!name)return alert('Item name required');a.push({id:id(),name,unit:val('qi_unit'),sale:+val('qi_sale')||0,cost:+val('qi_cost')||0,supplier:getSelected('qi_supplier'),createdBy:getSelected('qi_employee')});store.set(ITEM_KEY,a);renderItems();toast('Item added');clear(['qi_name','qi_unit','qi_sale','qi_cost']);}
+function editItem(idv){const a=store.get(ITEM_KEY);const it=a.find(x=>x.id===idv);if(!it)return; const name=prompt('Name',it.name); if(name===null)return; const unit=prompt('Unit',it.unit||''); if(unit===null)return; const sale=prompt('Sale',it.sale||0); if(sale===null)return; const cost=prompt('Cost',it.cost||0); if(cost===null)return; const supplier=prompt('Supplier',it.supplier||''); if(supplier===null)return; const createdBy=prompt('Created By',it.createdBy||''); if(createdBy===null)return; Object.assign(it,{name,unit,sale:parseFloat(sale)||0,cost:parseFloat(cost)||0,supplier,createdBy}); store.set(ITEM_KEY,a); renderItems(); toast('Item updated');}
+function delItem(idv){let a=store.get(ITEM_KEY).filter(x=>x.id!==idv);store.set(ITEM_KEY,a);renderItems();toast('Item deleted');}
+function renderItems(){const q=(val('items_filter')||'').toLowerCase();const rows=store.get(ITEM_KEY).filter(i=>!q||JSON.stringify(i).toLowerCase().includes(q)).map(i=>`<tr><td>${i.name||''}</td><td>${i.unit||''}</td><td>${usd(i.sale)}</td><td>${usd(i.cost)}</td><td>${i.supplier||''}</td><td>${i.createdBy||''}</td><td><button class='btn ghost' onclick="editItem('${i.id}')">Edit</button> <button class='btn ghost' onclick="delItem('${i.id}')">Delete</button></td></tr>`).join('');document.getElementById('items_tbody').innerHTML=rows||'<tr><td colspan="7" class="small">No items yet.</td></tr>';}
+
+/* Employees CRUD */
+function addEmployee(){const a=store.get(EMP_KEY);const name=val('emp_name');if(!name)return alert('Employee name required');a.push({id:id(),name,email:val('emp_email'),role:val('emp_role')||'Viewer'});store.set(EMP_KEY,a);renderEmployees();fillEmployees();toast('Employee added');clear(['emp_name','emp_email']);}
+function editEmployee(idv){const a=store.get(EMP_KEY);const e=a.find(x=>x.id===idv);if(!e)return; const name=prompt('Name',e.name); if(name===null)return; const email=prompt('Email',e.email||''); if(email===null)return; const role=prompt('Role (Viewer/Admin/Super Admin)',e.role||'Viewer'); if(role===null)return; Object.assign(e,{name,email,role}); store.set(EMP_KEY,a); renderEmployees(); fillEmployees(); toast('Employee updated');}
+function delEmployee(idv){let a=store.get(EMP_KEY).filter(x=>x.id!==idv);store.set(EMP_KEY,a);renderEmployees();fillEmployees();toast('Employee deleted');}
+function renderEmployees(){const q=(val('emp_filter')||'').toLowerCase();const rows=store.get(EMP_KEY).filter(e=>!q||JSON.stringify(e).toLowerCase().includes(q)).map(e=>`<tr><td>${e.name||''}</td><td>${e.email||''}</td><td>${e.role||''}</td><td><button class='btn ghost' onclick="editEmployee('${e.id}')">Edit</button> <button class='btn ghost' onclick="delEmployee('${e.id}')">Delete</button></td></tr>`).join('');document.getElementById('emp_tbody').innerHTML=rows||'<tr><td colspan="4" class="small">No employees yet.</td></tr>';}
+
+/* Accounts (role-based) */
+function addAccount(){const a=store.get(ACCT_KEY);const name=val('acct_name');if(!name)return alert('Account name required');const type=val('acct_type');const sess=getS();const owner=sess&&sess.email?sess.email:'';a.push({id:id(),name,type,owner});store.set(ACCT_KEY,a);renderAccounts();toast('Account added');clear(['acct_name','acct_type']);}
+function quickAddAccount(){const a=store.get(ACCT_KEY);const name=val('qa_name');if(!name)return alert('Account name required');const type=val('qa_type');const sess=getS();const owner=sess&&sess.email?sess.email:'';a.push({id:id(),name,type,owner});store.set(ACCT_KEY,a);renderAccounts();toast('Account added');clear(['qa_name','qa_type']);}
+function editAccount(idv){const a=store.get(ACCT_KEY);const acc=a.find(x=>x.id===idv);if(!acc) return; const name=prompt('Account Name',acc.name); if(name===null) return; const type=prompt('Type',acc.type||''); if(type===null) return; const owner=prompt('Owner (email)',acc.owner||''); if(owner===null) return; Object.assign(acc,{name,type,owner}); store.set(ACCT_KEY,a); renderAccounts(); toast('Account updated');}
+function delAccount(idv){let a=store.get(ACCT_KEY).filter(x=>x.id!==idv);store.set(ACCT_KEY,a);renderAccounts();toast('Account deleted');}
+function renderAccounts(){const q=(val('acct_filter')||'').toLowerCase();const sess=getS();const role=sess&&sess.role?sess.role:'Viewer';let arr=store.get(ACCT_KEY);if(role!=='Super Admin'){const email=sess&&sess.email?sess.email:'';arr=arr.filter(x=>x.owner===email);}if(q)arr=arr.filter(x=>JSON.stringify(x).toLowerCase().includes(q));const rows=arr.map(a=>`<tr><td>${a.name||''}</td><td>${a.type||''}</td><td>${a.owner||''}</td><td><button class='btn ghost' onclick="editAccount('${a.id}')">Edit</button> <button class='btn ghost' onclick="delAccount('${a.id}')">Delete</button></td></tr>`).join('');document.getElementById('acct_tbody').innerHTML=rows||'<tr><td colspan="4" class="small">No accounts yet.</td></tr>';}
+
+/* Module Workspace */
+function openModule(e, name){
+  e.preventDefault();
+  const panel = document.getElementById('module_panel');
+  const inner = document.getElementById('module_inner');
+  const map = { employees: renderEmployeesModule, sales: renderSalesModule, purchases: renderPurchasesModule, inventory: renderInventoryModule };
+  if(map[name]){
+    inner.innerHTML = map[name]();
+    panel.style.display = 'block';
+    ['emp_link','sales_link','purch_link','inv_link'].forEach(id=>{
+      const el=document.getElementById(id); if(!el) return;
+      el.setAttribute('aria-expanded', String(name===id.split('_')[0]));
+    });
+  }
+  if(name==='employees'){ renderEmployeesMatrix(); }
+  if(name==='sales'){ renderSales(); }
+  if(name==='purchases'){ renderPOs(); }
+  if(name==='inventory'){ renderInventory(); }
+}
+
+/* Employees module UI */
+function renderEmployeesModule(){
+  return `
+  <div class="tools" style="justify-content:space-between">
+    <h2 style="margin:0">Employees — Roles & Permissions</h2>
+    <div class="tools"><input id="emp_m_filter" class="input sm" placeholder="Search…" oninput="renderEmployeesMatrix()">
+      <button class="btn" onclick="seedEmployees()">Seed demo</button></div>
+  </div>
+  <div class="grid" style="margin-top:10px">
+    <div class="card">
+      <h3>Add Employee</h3>
+      <div class="grid">
+        <input id="m_emp_name" class="input" placeholder="Employee Name">
+        <input id="m_emp_email" class="input" placeholder="Email">
+        <select id="m_emp_role" class="input">
+          <option value="Viewer">Viewer</option>
+          <option value="Admin">Admin</option>
+          <option value="Super Admin">Super Admin</option>
+        </select>
+      </div>
+      <div class="tools" style="margin-top:8px"><button class="btn" onclick="mAddEmployee()">Add</button></div>
+    </div>
+    <div class="card">
+      <h3>Permissions Matrix</h3>
+      <div style="overflow:auto;max-height:360px">
+        <table class="table"><thead><tr>
+          <th>Name</th><th>Email</th><th>Role</th><th>Items</th><th>Suppliers</th><th>Accounts</th><th>Actions</th>
+        </tr></thead><tbody id="emp_matrix"></tbody></table>
+      </div>
+      <div class="small">Super Admin: full access. Admin: edit own modules. Viewer: read-only.</div>
+    </div>
+  </div>`;
+}
+function seedEmployees(){ if(store.get(EMP_KEY).length>0){toast('Employees already exist');return;}
+  store.set(EMP_KEY,[
+    {id:id(),name:'Ali Kareem',email:'ali@wab.demo',role:'Admin'},
+    {id:id(),name:'Hussein Saad',email:'hussein@wab.demo',role:'Viewer'},
+    {id:id(),name:'Zainab Jawad',email:'zainab@wab.demo',role:'Super Admin'}
+  ]); fillEmployees(); renderEmployeesMatrix(); toast('Seeded employees'); }
+function mAddEmployee(){const a=store.get(EMP_KEY);const name=val('m_emp_name');if(!name) return alert('Name required');a.push({id:id(),name,email:val('m_emp_email'),role:val('m_emp_role')});store.set(EMP_KEY,a);fillEmployees();renderEmployeesMatrix();toast('Employee added');}
+function renderEmployeesMatrix(){
+  const q=(document.getElementById('emp_m_filter')?.value||'').toLowerCase();
+  const rows=store.get(EMP_KEY).filter(e=>!q||JSON.stringify(e).toLowerCase().includes(q)).map(e=>`
+    <tr><td>${e.name||''}</td><td>${e.email||''}</td><td>${e.role||''}</td>
+    <td>${permBadge(e.role)}</td><td>${permBadge(e.role)}</td><td>${permBadge(e.role)}</td>
+    <td><button class='btn ghost' onclick="editEmployee('${e.id}')">Edit</button> <button class='btn ghost' onclick="delEmployee('${e.id}'); renderEmployeesMatrix()">Delete</button></td></tr>`).join('');
+  document.getElementById('emp_matrix').innerHTML = rows || '<tr><td colspan="7" class="small">No employees</td></tr>';
+}
+function permBadge(role){const lvl = role==='Super Admin' ? 'Full' : role==='Admin' ? 'Edit' : 'Read';const col = role==='Viewer'?'#9ca3af':role==='Admin'?'#16a34a':'#22c55e';return `<span class="badge" style="background:${col}">${lvl}</span>`;}
+
+/* Sales module */
+function renderSalesModule(){
+  return `
+  <div class="tools" style="justify-content:space-between">
+    <h2 style="margin:0">Sales — Quotes & Orders</h2>
+    <div class="tools"><input id="sales_filter" class="input sm" placeholder="Search…" oninput="renderSales()">
+      <button class="btn" onclick="seedSales()">Seed</button></div>
+  </div>
+  <div class="grid" style="margin-top:10px">
+    <div class="card">
+      <h3>Create Quotation</h3>
+      <div class="grid">
+        <input id="sq_customer" class="input" placeholder="Customer">
+        <input id="sq_item" class="input" placeholder="Item">
+        <input id="sq_qty" class="input" type="number" placeholder="Qty">
+        <input id="sq_price" class="input" type="number" step="0.01" placeholder="Unit Price (USD)">
+      </div>
+      <div class="tools" style="margin-top:8px">
+        <button class="btn" onclick="createQuote()">Save Quote</button>
+        <button class="btn ghost" onclick="convertSelectedQuote()">Convert to Order</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Pipeline</h3>
+      <div style="overflow:auto;max-height:360px">
+        <table class="table"><thead><tr><th>#</th><th>Customer</th><th>Item</th><th>Qty</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="sales_rows"></tbody></table>
+      </div>
+    </div>
+  </div>`;
+}
+let __selQuote=null;
+const SALES_KEY='sales';
+function seedSales(){ if(store.get(SALES_KEY).length>0){toast('Sales exist');return;}
+  store.set(SALES_KEY,[{id:id(),cust:'Al Noor Co.',item:'Cement 50kg',qty:50,price:8,status:'Quote'},
+  {id:id(),cust:'Arab Build',item:'Rebar 12mm',qty:120,price:5.5,status:'Order'}]);
+  renderSales(); toast('Sales seeded');}
+function createQuote(){
+  const a=store.get(SALES_KEY);
+  const cust=val('sq_customer'); if(!cust) return alert('Customer required');
+  a.push({id:id(),cust,item:val('sq_item'),qty:+val('sq_qty')||1,price:+val('sq_price')||0,status:'Quote'});
+  store.set(SALES_KEY,a); renderSales(); toast('Quote created');
+}
+function renderSales(){
+  const q=(val('sales_filter')||'').toLowerCase();
+  const rows=store.get(SALES_KEY).filter(s=>!q||JSON.stringify(s).toLowerCase().includes(q)).map(s=>`
+    <tr onclick="__selQuote='${s.id}'" style="cursor:pointer">
+      <td>${s.id.slice(0,4)}</td><td>${s.cust}</td><td>${s.item||''}</td><td>${s.qty}</td><td>${usd(s.price)}</td><td>${s.status}</td>
+      <td><button class='btn ghost' onclick="markOrder(event,'${s.id}')">Mark Order</button> <button class='btn ghost' onclick="delSale(event,'${s.id}')">Delete</button></td></tr>`).join('');
+  document.getElementById('sales_rows').innerHTML = rows || '<tr><td colspan="7" class="small">No sales</td></tr>';
+}
+function convertSelectedQuote(){ if(!__selQuote){toast('Select a quote row');return;} markOrder(null,__selQuote); }
+function markOrder(ev,idv){ if(ev) ev.stopPropagation(); const a=store.get(SALES_KEY); const s=a.find(x=>x.id===idv); if(!s) return; s.status='Order'; store.set(SALES_KEY,a); renderSales(); toast('Converted to Order'); }
+function delSale(ev,idv){ if(ev) ev.stopPropagation(); let a=store.get(SALES_KEY).filter(x=>x.id!==idv); store.set(SALES_KEY,a); renderSales(); toast('Deleted'); }
+
+/* Purchases module */
+function renderPurchasesModule(){
+  return `
+  <div class="tools" style="justify-content:space-between">
+    <h2 style="margin:0">Purchases — POs & Bills</h2>
+    <div class="tools"><input id="po_filter" class="input sm" placeholder="Search…" oninput="renderPOs()">
+      <button class="btn" onclick="seedPOs()">Seed</button></div>
+  </div>
+  <div class="grid" style="margin-top:10px">
+    <div class="card">
+      <h3>Create Purchase Order</h3>
+      <div class="grid">
+        <input id="po_supplier" class="input" placeholder="Supplier">
+        <input id="po_item" class="input" placeholder="Item">
+        <input id="po_qty" class="input" type="number" placeholder="Qty">
+        <input id="po_cost" class="input" type="number" step="0.01" placeholder="Unit Cost (USD)">
+      </div>
+      <div class="tools" style="margin-top:8px">
+        <button class="btn" onclick="createPO()">Save PO</button>
+        <button class="btn ghost" onclick="markReceived()">Mark Received</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>PO List</h3>
+      <div style="overflow:auto;max-height:360px">
+        <table class="table"><thead><tr><th>#</th><th>Supplier</th><th>Item</th><th>Qty</th><th>Cost</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="po_rows"></tbody></table>
+      </div>
+    </div>
+  </div>`;
+}
+let __selPO=null;
+const PO_KEY='purchase_orders';
+function seedPOs(){ if(store.get(PO_KEY).length>0){toast('POs exist');return;}
+  store.set(PO_KEY,[{id:id(),sup:'United Supply',item:'Cement 50kg',qty:80,cost:6.8,status:'Draft'}]);
+  renderPOs(); toast('PO seeded');}
+function createPO(){
+  const a=store.get(PO_KEY);
+  const sup=val('po_supplier'); if(!sup) return alert('Supplier required');
+  a.push({id:id(),sup,item:val('po_item'),qty:+val('po_qty')||1,cost:+val('po_cost')||0,status:'Draft'});
+  store.set(PO_KEY,a); renderPOs(); toast('PO created');
+}
+function renderPOs(){
+  const q=(val('po_filter')||'').toLowerCase();
+  const rows=store.get(PO_KEY).filter(p=>!q||JSON.stringify(p).toLowerCase().includes(q)).map(p=>`
+    <tr onclick="__selPO='${p.id}'" style="cursor:pointer">
+      <td>${p.id.slice(0,4)}</td><td>${p.sup}</td><td>${p.item||''}</td><td>${p.qty}</td><td>${usd(p.cost)}</td><td>${p.status}</td>
+      <td><button class='btn ghost' onclick="setPOStatus(event,'${p.id}','Approved')">Approve</button> <button class='btn ghost' onclick="setPOStatus(event,'${p.id}','Received')">Receive</button> <button class='btn ghost' onclick="delPO(event,'${p.id}')">Delete</button></td></tr>`).join('');
+  document.getElementById('po_rows').innerHTML = rows || '<tr><td colspan="7" class="small">No POs</td></tr>';
+}
+function setPOStatus(ev,idv,st){ if(ev) ev.stopPropagation(); const a=store.get(PO_KEY); const p=a.find(x=>x.id===idv); if(!p)return; p.status=st; store.set(PO_KEY,a); renderPOs(); toast('PO '+st); }
+function markReceived(){ if(!__selPO){toast('Select a PO');return;} setPOStatus(null,__selPO,'Received'); }
+function delPO(ev,idv){ if(ev) ev.stopPropagation(); let a=store.get(PO_KEY).filter(x=>x.id!==idv); store.set(PO_KEY,a); renderPOs(); toast('Deleted'); }
+
+/* Inventory module */
+function renderInventoryModule(){
+  return `
+  <div class="tools" style="justify-content:space-between">
+    <h2 style="margin:0">Inventory — Stock Levels</h2>
+    <div class="tools"><input id="inv_filter" class="input sm" placeholder="Search…" oninput="renderInventory()">
+      <button class="btn" onclick="seedInventory()">Seed</button></div>
+  </div>
+  <div class="grid" style="margin-top:10px">
+    <div class="card">
+      <h3>Adjust Stock</h3>
+      <div class="grid">
+        <input id="inv_item" class="input" placeholder="Item">
+        <input id="inv_delta" class="input" type="number" placeholder="+/- Qty">
+        <input id="inv_loc" class="input" placeholder="Location (e.g., WH/Baghdad)">
+      </div>
+      <div class="tools" style="margin-top:8px">
+        <button class="btn" onclick="applyAdjustment()">Apply</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Stock</h3>
+      <div style="overflow:auto;max-height:360px">
+        <table class="table"><thead><tr><th>Item</th><th>Qty</th><th>Location</th><th>Last Update</th></tr></thead>
+        <tbody id="inv_rows"></tbody></table>
+      </div>
+      <div class="small">Tip: Receive a PO in Purchases to increase stock logically.</div>
+    </div>
+  </div>`;
+}
+const INV_KEY='inventory';
+function seedInventory(){ if(store.get(INV_KEY).length>0){toast('Inventory exists');return;}
+  store.set(INV_KEY,[{id:id(),item:'Cement 50kg',qty:120,loc:'WH/Baghdad',ts:new Date().toISOString()}]);
+  renderInventory(); toast('Inventory seeded');}
+function applyAdjustment(){
+  const a=store.get(INV_KEY);
+  const it=val('inv_item'); if(!it) return alert('Item required');
+  const d=parseFloat(val('inv_delta')||0);
+  a.push({id:id(),item:it,qty:d,loc:val('inv_loc')||'WH/Main',ts:new Date().toISOString()});
+  store.set(INV_KEY,a); renderInventory(); toast('Adjustment applied');
+}
+function renderInventory(){
+  const q=(val('inv_filter')||'').toLowerCase();
+  const rows=store.get(INV_KEY).filter(r=>!q||JSON.stringify(r).toLowerCase().includes(q)).map(r=>`
+    <tr><td>${r.item}</td><td>${r.qty}</td><td>${r.loc||''}</td><td>${new Date(r.ts).toLocaleString()}</td></tr>`).join('');
+  document.getElementById('inv_rows').innerHTML = rows || '<tr><td colspan="4" class="small">No stock records</td></tr>';
+}
+
+/* UI helpers */
+function getSelected(id){const el=document.getElementById(id); return el && el.value ? el.value : '';}
+function toggleQuickItem(e){e.preventDefault();const link=document.getElementById('suppliers_link');const box=document.getElementById('quick_item_box');const open=box.style.display==='block';box.style.display=open?'none':'block';link.setAttribute('aria-expanded', String(!open));}
+function toggleQuickAccounts(e){e.preventDefault();const link=document.getElementById('acct_link');const box=document.getElementById('quick_acct_box');const open=box.style.display==='block';box.style.display=open?'none':'block';link.setAttribute('aria-expanded', String(!open));}
+
+/* Global search */
+function globalSearch(){const q=val('global_search').toLowerCase();['items_filter','sup_filter','emp_filter','acct_filter'].forEach(id=>{const el=document.getElementById(id); if(el) el.value=q;});renderItems();renderSuppliers();renderEmployees();renderAccounts();}
+
+/* Boot */
+function boot(){const s=getS();if(!s){document.getElementById('auth').style.display='grid';document.getElementById('app').style.display='none';return;}
+  document.getElementById('auth').style.display='none';document.getElementById('app').style.display='grid';
+  document.getElementById('whoami').textContent=s.email; document.getElementById('whorole').textContent=s.role||'Viewer';
+  fillEmployees(); populateSupplierOptions(); renderSuppliers(); renderItems(); renderAccounts(); renderEmployees();
+}
+document.addEventListener('DOMContentLoaded',()=>{boot();});
+</script>
+</body>
+</html>
